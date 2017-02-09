@@ -7,8 +7,9 @@ use Devguar\OContainer\NotaFiscal\Services;
 
 class NotaFiscalTest extends TestCase
 {
+    private $tokenTiny = "92aa324c599486438b9189b357784c84f7bdb598";
 
-    public function testCarregandoObjetoNotaFiscal(){
+    private function carregarObjetoNotaFiscalExemplo(){
         $datetime = new \DateTime();
 
         $nota = new Models\NotaFiscal();
@@ -142,13 +143,46 @@ class NotaFiscalTest extends TestCase
         $nota->valor_despesas = "1.00";
         $nota->obs = "Observações da nota";
 
-        $notaFiscalService = new Services\NotaFiscalService("92aa324c599486438b9189b357784c84f7bdb598");
+        return $nota;
+    }
+
+    public function testCarregandoObjetoNotaFiscal(){
+        $nota = $this->carregarObjetoNotaFiscalExemplo();
+
+        $notaFiscalService = new Services\NotaFiscalService($this->tokenTiny);
         $retorno = $notaFiscalService->incluirNota($nota);
 
-        dd($retorno);
+        $this->assertEquals($retorno->retorno->status_processamento, '3');
+        $this->assertFalse(isset($retorno->retorno->registros->erros));
+        $this->assertTrue(isset($retorno->retorno->registros->registro));
+        $this->assertFalse(isset($retorno->retorno->registros->registro->erros));
+    }
 
+    public function testCarregandoObjetoNotaFiscalSemCliente(){
+        $nota = $this->carregarObjetoNotaFiscalExemplo();
 
-        $this->assertEquals('A', 'A');
+        unset($nota->cliente);
+
+        $notaFiscalService = new Services\NotaFiscalService($this->tokenTiny);
+        $retorno = $notaFiscalService->incluirNota($nota);
+
+        $this->assertNotEquals($retorno->retorno->status_processamento, '3');
+        $this->assertTrue(isset($retorno->retorno->registros->registro->erros));
+
+        $this->assertEquals('O nome do cliente deve ser informado',$retorno->retorno->registros->registro->erros[0]->erro);
+    }
+
+    public function testCarregandoObjetoNotaFiscalSemItens(){
+        $nota = $this->carregarObjetoNotaFiscalExemplo();
+        $nota->itens = array();
+
+        $notaFiscalService = new Services\NotaFiscalService($this->tokenTiny);
+        $retorno = $notaFiscalService->incluirNota($nota);
+
+        $this->assertNotEquals($retorno->retorno->status_processamento, '3');
+        $this->assertTrue(isset($retorno->retorno->registros->registro->erros));
+
+        $this->assertContains('informar ao menos um item para a nota fiscal',$retorno->retorno->registros->registro->erros[0]->erro);
     }
 
 }

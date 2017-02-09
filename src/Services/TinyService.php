@@ -23,7 +23,7 @@ abstract class TinyService
         $this->token = $token;
     }
 
-    function enviarREST($url, $data, $optional_headers = null) {
+    protected function enviarREST($url, $data, $optional_headers = null) {
         $params = array('http' => array(
             'method' => 'POST',
             'content' => $data
@@ -32,6 +32,8 @@ abstract class TinyService
         if ($optional_headers !== null) {
             $params['http']['header'] = $optional_headers;
         }
+
+        $php_errormsg = null;
 
         $ctx = stream_context_create($params);
         $fp = @fopen($url, 'rb', false, $ctx);
@@ -43,6 +45,12 @@ abstract class TinyService
             throw new \Exception("Problema obtendo retorno de $url, $php_errormsg");
         }
 
+        $response = $this->serializarRetorno($response);
+
         return $response;
+    }
+
+    private function serializarRetorno($response){
+        return json_decode($response);
     }
 }
