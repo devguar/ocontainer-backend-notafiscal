@@ -20,6 +20,7 @@ class NotaFiscal
     public $itens; //Array de Model Item
     public $forma_pagamento;
     public $parcelas; //Array de Model Parcela
+    public $transportador; //Model Transportador
     public $frete_por_conta;
     public $placa_veiculo;
     public $uf_veiculo;
