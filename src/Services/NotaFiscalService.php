@@ -18,6 +18,9 @@ class NotaFiscalService extends TinyService
         $nota = json_encode($nota);
         $data = "token=$this->token&nota=$nota&formato=JSON";
 
-        $this->enviarREST($url, $data);
+        return $this->enviarREST($url, $data);
     }
+
+
+
 }

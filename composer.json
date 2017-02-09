@@ -1,0 +1,32 @@
+{
+    "name": "package-ocontainer-backend-notafiscal",
+    "description": "package-ocontainer-backend-notafiscal",
+    "keywords": [],
+    "homepage": "https://bitbucket.org/LucasGuarnieri/package-ocontainer-backend-notafiscal",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lucas Guarnieri",
+            "email": "lucasguarni@gmail.com"
+        }
+    ],
+    "require": {
+        "php" : ">=5.5.0",
+        "ext-intl": "*",
+        "illuminate/support": "5.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.0",
+        "orchestra/testbench": "3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Devguar\\OContainer\\NotaFiscal\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Devguar\\OContainer\\NotaFiscal\\Tests\\": "tests"
+        }
+    }
+}
