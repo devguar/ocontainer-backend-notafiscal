@@ -153,6 +153,8 @@ class NotaFiscalTest extends TestCase
         $retorno = $notaFiscalService->incluirNota($nota);
 
         $this->assertEquals($retorno->retorno->status_processamento, '3');
+        $this->assertEquals($retorno->retorno->status, 'OK');
+
         $this->assertFalse(isset($retorno->retorno->registros->erros));
         $this->assertTrue(isset($retorno->retorno->registros->registro));
         $this->assertFalse(isset($retorno->retorno->registros->registro->erros));
@@ -167,6 +169,8 @@ class NotaFiscalTest extends TestCase
         $retorno = $notaFiscalService->incluirNota($nota);
 
         $this->assertNotEquals($retorno->retorno->status_processamento, '3');
+        $this->assertEquals($retorno->retorno->status, 'OK');
+
         $this->assertTrue(isset($retorno->retorno->registros->registro->erros));
 
         $this->assertEquals('O nome do cliente deve ser informado',$retorno->retorno->registros->registro->erros[0]->erro);
@@ -180,9 +184,10 @@ class NotaFiscalTest extends TestCase
         $retorno = $notaFiscalService->incluirNota($nota);
 
         $this->assertNotEquals($retorno->retorno->status_processamento, '3');
+        $this->assertEquals($retorno->retorno->status, 'OK');
+
         $this->assertTrue(isset($retorno->retorno->registros->registro->erros));
 
         $this->assertContains('informar ao menos um item para a nota fiscal',$retorno->retorno->registros->registro->erros[0]->erro);
     }
-
 }
