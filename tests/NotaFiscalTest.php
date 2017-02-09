@@ -190,4 +190,46 @@ class NotaFiscalTest extends TestCase
 
         $this->assertContains('informar ao menos um item para a nota fiscal',$retorno->retorno->registros->registro->erros[0]->erro);
     }
+
+    public function testCarregandoObjetoNotaFiscalComMinimo(){
+        $nota = new Models\NotaFiscal();
+
+        $datetime = new \DateTime();
+
+        $nota = new Models\NotaFiscal();
+        $nota->data_emissao = $datetime->format('d/m/Y');
+        $nota->data_entrada_saida = $datetime->format('d/m/Y');
+        $nota->hora_entrada_saida = $datetime->format('H:i:s');
+
+        $cliente = new Models\Cliente();
+        $cliente->nome = "Contato Teste 2";
+        $nota->cliente = $cliente;
+
+        $itens = array();
+
+        $item = new Models\Item();
+        $item->descricao = "Produto Teste 1";
+        $item->unidade = "UN";
+        $item->quantidade = "2";
+        $item->valor_unitario = "50.25";
+        $item->tipo = "P";
+
+        $object = new \StdClass();
+        $object->item = $item;
+        $itens[] = $object;
+
+        $nota->itens = $itens;
+
+        $nota->frete_por_conta = "R";
+
+        $notaFiscalService = new Services\NotaFiscalService($this->tokenTiny);
+        $retorno = $notaFiscalService->incluirNota($nota);
+
+        $this->assertEquals($retorno->retorno->status_processamento, '3');
+        $this->assertEquals($retorno->retorno->status, 'OK');
+
+        $this->assertFalse(isset($retorno->retorno->registros->erros));
+        $this->assertTrue(isset($retorno->retorno->registros->registro));
+        $this->assertFalse(isset($retorno->retorno->registros->registro->erros));
+    }
 }
