@@ -35,14 +35,21 @@ class NotaFiscalService extends TinyService
         $url = $this->metodos_base_url.'nota.fiscal.obter.php';
         $data = "token=$this->token&id=$id_externo&formato=JSON";
 
-        return $this->enviarREST($url, $data);
+        $retorno = $this->enviarREST($url, $data);
+
+        if ($retorno->retorno->status_processamento == 3){
+            return $retorno->retorno->nota_fiscal;
+        }else{
+            $this->erro = $this->buscarErro($retorno);
+            return null;
+        }
     }
 
     function statusNota($id_externo){
-        $retorno = $this->obterNota($id_externo);
+        $notaFiscal = $this->obterNota($id_externo);
 
-        if ($retorno->retorno->status_processamento == '3'){
-            return $retorno->retorno->nota_fiscal->descricao_situacao;
+        if ($notaFiscal){
+            return $notaFiscal->descricao_situacao;
         }
 
         return null;
