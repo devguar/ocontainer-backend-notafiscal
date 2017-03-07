@@ -13,8 +13,6 @@ use Devguar\OContainer\NotaFiscal\Models\NotaServico;
 
 class NotaServicoService extends TinyService
 {
-    public $erro;
-
     function incluirNota(NotaServico $nota){
         $objeto = new \StdClass();
         $objeto->nota_servico = $nota;
@@ -58,23 +56,5 @@ class NotaServicoService extends TinyService
         }
 
         return null;
-    }
-
-    function buscarErro($retorno){
-        $retorno = $retorno->retorno;
-
-        $registro = null;
-
-        if (is_array($retorno->registros)){
-            $registro = $retorno->registros[0]->registro;
-        }else{
-            $registro = $retorno->registros->registro;
-        }
-
-        if (is_array($registro->erros)){
-            return $registro->erros[0]->erro;
-        }else{
-            return $registro->erros->erro;
-        }
     }
 }

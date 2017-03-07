@@ -11,6 +11,8 @@ namespace Devguar\OContainer\NotaFiscal\Services;
 
 abstract class TinyService
 {
+    public $erro;
+
     public $token;
     public $metodos_base_url = 'https://api.tiny.com.br/api2/';
 
@@ -52,5 +54,23 @@ abstract class TinyService
 
     private function serializarRetorno($response){
         return json_decode($response);
+    }
+
+    function buscarErro($retorno){
+        $retorno = $retorno->retorno;
+
+        $registro = null;
+
+        if (is_array($retorno->registros)){
+            $registro = $retorno->registros[0]->registro;
+        }else{
+            $registro = $retorno->registros->registro;
+        }
+
+        if (is_array($registro->erros)){
+            return $registro->erros[0]->erro;
+        }else{
+            return $registro->erros->erro;
+        }
     }
 }
