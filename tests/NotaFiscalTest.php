@@ -79,7 +79,7 @@ class NotaFiscalTest extends TestCase
 
         $parcelas = array();
 
-        $parcela = new Models\Parcela();
+        $parcela = new Models\Duplicata();
         $parcela->dias = "30";
         $parcela->data = "29/11/2012";
         $parcela->valor = "53.84";
@@ -90,7 +90,7 @@ class NotaFiscalTest extends TestCase
         $object->parcela = $parcela;
         $parcelas[] = $object;
 
-        $parcela = new Models\Parcela();
+        $parcela = new Models\Duplicata();
         $parcela->dias = "60";
         $parcela->data = "29/12/2012";
         $parcela->valor = "53.83";
@@ -102,7 +102,7 @@ class NotaFiscalTest extends TestCase
         $object->parcela = $parcela;
         $parcelas[] = $object;
 
-        $parcela = new Models\Parcela();
+        $parcela = new Models\Duplicata();
         $parcela->dias = "90";
         $parcela->data = "27/01/2013";
         $parcela->valor = "53.83";

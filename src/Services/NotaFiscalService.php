@@ -1,59 +1,29 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Lucas
- * Date: 08/02/2017
- * Time: 21:02
- */
 
 namespace Devguar\OContainer\NotaFiscal\Services;
 
-
 use Devguar\OContainer\NotaFiscal\Models\NotaFiscal;
 
-class NotaFiscalService extends TinyService
+class NotaFiscalService extends FocusNfeService
 {
-    function incluirNota(NotaFiscal $nota){
-        $objeto = new \StdClass();
-        $objeto->nota_fiscal = $nota;
+    public function enviar($nota)
+    {
+        $nfe = (array) $nota;
+        $this->sendPOST("autorizar.json?ref=".$nota->referencia, $nfe);
 
-        $url = $this->metodos_base_url.'nota.fiscal.incluir.php';
-        $nota = json_encode($objeto);
-        $data = "token=$this->token&nota=$nota&formato=JSON";
-
-        $retorno = $this->enviarREST($url, $data);
-
-        if ($retorno->retorno->status_processamento == 3){
-            return $retorno->retorno->registros->registro;
-        }else{
-            $this->erro = $this->buscarErro($retorno);
-            return null;
-        }
+        dd($this->return_body);
     }
 
-    function obterNota($id_externo){
-        $url = $this->metodos_base_url.'nota.fiscal.obter.php';
-        $data = "token=$this->token&id=$id_externo&formato=JSON";
+    public function consultar($referencia)
+    {
+        $this->sendGET("consultar.json?ref=".$referencia);
 
-        $retorno = $this->enviarREST($url, $data);
-
-        if ($retorno->retorno->status_processamento == 3){
-            return $retorno->retorno->nota_fiscal;
-        }else{
-            $this->erro = $this->buscarErro($retorno);
-            return null;
-        }
+        dd($this->return_body);
     }
 
-    function statusNota($id_externo){
-        $notaFiscal = $this->obterNota($id_externo);
+    public function cancelar($referencia, $justificativa){
+        $this->sendPOST("cancelar?ref=".$referencia."&justificativa=".$justificativa);
 
-        if ($notaFiscal){
-            return $notaFiscal->descricao_situacao;
-        }
-
-        return null;
+        dd($this->return_body);
     }
-
-
 }

@@ -9,11 +9,10 @@
 namespace Devguar\OContainer\NotaFiscal\Models;
 
 
-class Parcela
+class Volume
 {
-    public $dias;
-    public $data;
-    public $valor;
-    public $obs;
-    public $forma_pagamento;
+    public $quantidade;
+    public $especie;
+    public $peso_bruto;
+    public $peso_liquido;
 }

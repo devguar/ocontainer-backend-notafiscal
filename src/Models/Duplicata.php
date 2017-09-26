@@ -9,9 +9,8 @@
 namespace Devguar\OContainer\NotaFiscal\Models;
 
 
-class Servico
+class Duplicata
 {
-    public $descricao;
-    public $valor_servico;
-    public $codigo_lista_servico;
+    public $numero;
+    public $valor;
 }
