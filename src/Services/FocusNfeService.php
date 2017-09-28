@@ -11,21 +11,37 @@ namespace Devguar\OContainer\NotaFiscal\Services;
 
 abstract class FocusNfeService
 {
+    const AMBIENTE_PRODUCAO = 'P';
+    const AMBIENTE_HOMOLOGACAO = 'H';
+    const STATUS_AGUARDANDO_AUTORIZACAO = 'processando_autorizacao';
+
+    private $ambiente;
     private $server = "";
     private $token = "";
 
     public $return_http_code;
     public $return_body;
+    public $erros;
+    public $retorno;
 
-    public function __construct($ambienteProducao = false, $token)
+    protected abstract function urlServerHomologacao();
+    protected abstract function urlServerProducao();
+
+    public function __construct($ambiente, $token)
     {
-        if ($ambienteProducao){
-            $this->server = "https://api.focusnfe.com.br/nfe2/";
+        if ($ambiente == self::AMBIENTE_PRODUCAO){
+            $this->server = $this->urlServerProducao();
         }else{
-            $this->server = "http://homologacao.acrasnfe.acras.com.br/nfe2/";
+            $this->server = $this->urlServerHomologacao();
         }
 
+        $this->ambiente = $ambiente;
         $this->token = $token;
+    }
+
+    public function getAmbiente(): string
+    {
+        return $this->ambiente;
     }
 
     public function sendPOST($uriMetodo, $data = null) {
@@ -35,22 +51,18 @@ abstract class FocusNfeService
         curl_setopt($ch, CURLOPT_POST, 1);
 
         if ($data){
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+//            dd($data);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         }
 
         $body = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
         $this->return_http_code = $http_code;
-        $this->return_body = $http_code;
+        $this->return_body = $body;
 
-        //as três linhas abaixo imprimem as informações retornadas pela API, aqui o seu sistema deverá
-        //interpretar e lidar com o retorno
-        print($http_code . "\n");
-        print($body . "\n\n");
-        print("");
-
-        curl_close($ch);
+        $this->tratarRetorno();
     }
 
     public function sendGET($uriMetodo){
@@ -60,16 +72,28 @@ abstract class FocusNfeService
         curl_setopt($ch, CURLOPT_HTTPHEADER, array());
         $body = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
         $this->return_http_code = $http_code;
-        $this->return_body = $http_code;
+        $this->return_body = $body;
 
-        //as três linhas abaixo imprimem as informações retornadas pela API, aqui o seu sistema deverá
-        //interpretar e lidar com o retorno
-        print($http_code."\n");
-        print($body."\n\n");
-        print("");
+        $this->tratarRetorno();
+    }
 
-        curl_close($ch);
+    private function tratarRetorno(){
+        $return = json_decode($this->return_body);
+
+        if (isset($return->erros)){
+            $this->erros = $return->erros;
+        }else{
+            $this->erros = null;
+        }
+
+        $this->retorno = $return;
+
+    }
+
+    public function justNumbers($str){
+        return preg_replace("/[^0-9]/","",$str);
     }
 }

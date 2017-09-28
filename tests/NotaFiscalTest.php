@@ -12,7 +12,7 @@ class NotaFiscalTest extends TestCase
     private function carregarObjetoNotaFiscalExemplo(){
         $datetime = new \DateTime();
 
-        $nota = new Models\NotaFiscal();
+        $nota = new Models\Nfe();
         $nota->tipo = "S";
         $nota->natureza_operacao = "Venda de Mercadorias";
         $nota->data_emissao = $datetime->format('d/m/Y');
@@ -41,7 +41,7 @@ class NotaFiscalTest extends TestCase
 
         $itens = array();
 
-        $item = new Models\Item();
+        $item = new Models\NfeItem();
         $item->codigo = "1234";
         $item->descricao = "Produto Teste 1";
         $item->unidade = "UN";
@@ -61,7 +61,7 @@ class NotaFiscalTest extends TestCase
         $object->item = $item;
         $itens[] = $object;
 
-        $item = new Models\Item();
+        $item = new Models\NfeItem();
         $item->codigo = "1235";
         $item->descricao = "Produto Teste 2";
         $item->unidade = "UN";
@@ -149,7 +149,7 @@ class NotaFiscalTest extends TestCase
     public function testCarregandoObjetoNotaFiscal(){
         $nota = $this->carregarObjetoNotaFiscalExemplo();
 
-        $notaFiscalService = new Services\NotaFiscalService($this->tokenTiny);
+        $notaFiscalService = new Services\NfeIntegrationService($this->tokenTiny);
         $retorno = $notaFiscalService->incluirNota($nota);
 
         $this->assertEquals($retorno->retorno->status_processamento, '3');
@@ -165,7 +165,7 @@ class NotaFiscalTest extends TestCase
 
         unset($nota->cliente);
 
-        $notaFiscalService = new Services\NotaFiscalService($this->tokenTiny);
+        $notaFiscalService = new Services\NfeIntegrationService($this->tokenTiny);
         $retorno = $notaFiscalService->incluirNota($nota);
 
         $this->assertNotEquals($retorno->retorno->status_processamento, '3');
@@ -180,7 +180,7 @@ class NotaFiscalTest extends TestCase
         $nota = $this->carregarObjetoNotaFiscalExemplo();
         $nota->itens = array();
 
-        $notaFiscalService = new Services\NotaFiscalService($this->tokenTiny);
+        $notaFiscalService = new Services\NfeIntegrationService($this->tokenTiny);
         $retorno = $notaFiscalService->incluirNota($nota);
 
         $this->assertNotEquals($retorno->retorno->status_processamento, '3');
@@ -192,11 +192,11 @@ class NotaFiscalTest extends TestCase
     }
 
     public function testCarregandoObjetoNotaFiscalComMinimo(){
-        $nota = new Models\NotaFiscal();
+        $nota = new Models\Nfe();
 
         $datetime = new \DateTime();
 
-        $nota = new Models\NotaFiscal();
+        $nota = new Models\Nfe();
         $nota->data_emissao = $datetime->format('d/m/Y');
         $nota->data_entrada_saida = $datetime->format('d/m/Y');
         $nota->hora_entrada_saida = $datetime->format('H:i:s');
@@ -207,7 +207,7 @@ class NotaFiscalTest extends TestCase
 
         $itens = array();
 
-        $item = new Models\Item();
+        $item = new Models\NfeItem();
         $item->descricao = "Produto Teste 1";
         $item->unidade = "UN";
         $item->quantidade = "2";
@@ -222,7 +222,7 @@ class NotaFiscalTest extends TestCase
 
         $nota->frete_por_conta = "R";
 
-        $notaFiscalService = new Services\NotaFiscalService($this->tokenTiny);
+        $notaFiscalService = new Services\NfeIntegrationService($this->tokenTiny);
         $retorno = $notaFiscalService->incluirNota($nota);
 
         $this->assertEquals($retorno->retorno->status_processamento, '3');

@@ -2,7 +2,7 @@
 
 namespace Devguar\OContainer\NotaFiscal\Models;
 
-class Item
+class NfeItem
 {
     public $numero_item;
     public $codigo_produto;
