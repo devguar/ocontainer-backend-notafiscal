@@ -2,6 +2,8 @@
 
 namespace Devguar\OContainer\NotaFiscal\Services;
 
+use Symfony\Component\Yaml\Yaml;
+
 class NfseIntegrationService extends FocusNfeService
 {
     protected function urlServerHomologacao()
@@ -16,7 +18,19 @@ class NfseIntegrationService extends FocusNfeService
 
     public function enviar($nota)
     {
-        $this->sendPOST("nfse?ref=".$nota['referencia'], \yaml_emit($nota));
+        $this->sendPOST("nfse?ref=".$nota['referencia'], Yaml::dump($nota));
+    }
+
+    protected function tratarRetorno(){
+        $return = (object) Yaml::parse($this->return_body);
+
+        if (isset($return->erros)){
+            $this->erros = $return->erros;
+        }else{
+            $this->erros = null;
+        }
+
+        $this->retorno = $return;
     }
 
     public function consultar($referencia)

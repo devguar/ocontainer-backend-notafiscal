@@ -80,7 +80,7 @@ abstract class FocusNfeService
         $this->tratarRetorno();
     }
 
-    private function tratarRetorno(){
+    protected function tratarRetorno(){
         $return = json_decode($this->return_body);
 
         if (isset($return->erros)){
@@ -90,7 +90,6 @@ abstract class FocusNfeService
         }
 
         $this->retorno = $return;
-
     }
 
     public function justNumbers($str){
