@@ -9,6 +9,11 @@ use Symfony\Component\Yaml\Yaml;
 
 class NfseIntegrationService extends FocusNfeService
 {
+    public function __construct($ambiente, $token)
+    {
+        parent::__construct($ambiente, $token, parent::FORMATO_RETORNO_YAML);
+    }
+
     protected function urlServerHomologacao()
     {
         return "http://homologacao.acrasnfe.acras.com.br/";
@@ -22,20 +27,11 @@ class NfseIntegrationService extends FocusNfeService
     public function enviar($nota)
     {
         $this->preValidacao($nota);
-        $this->sendPOST("nfse?ref=".$nota->referencia, Yaml::dump(ConvertObjectArrayHelper::objectToArray($nota)));
+        $this->sendPOST("nfse", ['ref'=>$nota->referencia], ConvertObjectArrayHelper::objectToArray($nota));
     }
 
-    protected function tratarRetorno(){
-        $return = (object) Yaml::parse($this->return_body);
-        $return = json_decode(json_encode($return));
-
-        if (isset($return->erros)){
-            $this->erros = $return->erros;
-        }else{
-            $this->erros = null;
-        }
-
-        $this->retorno = $return;
+    public function validar($nota){
+        $this->preValidacao($nota);
     }
 
     public function consultar($referencia)
@@ -44,7 +40,7 @@ class NfseIntegrationService extends FocusNfeService
     }
 
     public function cancelar($referencia, $justificativa){
-        $this->sendDELETE("nfse/".$referencia."?justificativa=".$justificativa);
+        $this->sendDELETE("nfse/".$referencia, ['justificativa'=>$justificativa]);
     }
 
     private function preValidacao($nfe){

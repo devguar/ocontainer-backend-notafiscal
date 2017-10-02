@@ -9,15 +9,26 @@
 namespace Devguar\OContainer\NotaFiscal\Services;
 
 
+use Devguar\OContainer\Util\ConvertObjectArrayHelper;
+use Symfony\Component\Yaml\Yaml;
+
 abstract class FocusNfeService
 {
     const AMBIENTE_PRODUCAO = 'P';
     const AMBIENTE_HOMOLOGACAO = 'H';
+
     const STATUS_AGUARDANDO_AUTORIZACAO = 'processando_autorizacao';
+    const STATUS_ERRO_AUTORIZACAO = 'erro_autorizacao';
+    const STATUS_AUTORIZADA = 'autorizada';
+
+    const FORMATO_RETORNO_JSON = "json";
+    const FORMATO_RETORNO_YAML = "yaml";
 
     private $ambiente;
+    private $formatoComunicacao;
+    private $token;
+
     private $server = "";
-    private $token = "";
 
     public $return_http_code;
     public $return_body;
@@ -27,7 +38,7 @@ abstract class FocusNfeService
     protected abstract function urlServerHomologacao();
     protected abstract function urlServerProducao();
 
-    public function __construct($ambiente, $token)
+    public function __construct($ambiente, $token, $formatoComunicacao)
     {
         if ($ambiente == self::AMBIENTE_PRODUCAO){
             $this->server = $this->urlServerProducao();
@@ -36,6 +47,7 @@ abstract class FocusNfeService
         }
 
         $this->ambiente = $ambiente;
+        $this->formatoComunicacao = $formatoComunicacao;
         $this->token = $token;
     }
 
@@ -44,81 +56,75 @@ abstract class FocusNfeService
         return $this->ambiente;
     }
 
-    public function sendPOST($uriMetodo, $data = null) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->server.$uriMetodo."&token=".$this->token);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-
-        if ($data){
-//            dd($data);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        }
-
-        $body = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        $this->return_http_code = $http_code;
-        $this->return_body = $body;
-
-        $this->tratarRetorno();
+    private function mountUrl($uri, $parametros = array()){
+        $parametros['token'] = $this->token;
+        $url = $this->server.$uri.'?'.http_build_query($parametros);
+        return $url;
     }
 
-    public function sendGET($uriMetodo){
-        $uriMetodo = $uriMetodo."&token=".$this->token;
+    public function sendPOST($uri, $parametros, $data = null)
+    {
+        $url = $this->mountUrl($uri, $parametros);
+        $client = new \GuzzleHttp\Client();
+        $response = null;
 
-        if (strpos($uriMetodo, '?') === false) {
-            $uriMetodo = str_replace("&token","?token",$uriMetodo);
+        try{
+            if ($data){
+                if ($this->formatoComunicacao == self::FORMATO_RETORNO_YAML){
+                    $data = Yaml::dump($data);
+                    $response = $client->post($url,['body'=>$data]);
+                }else{
+                    $response = $client->post($url,['json'=>$data]);
+                }
+            }else{
+                $response = $client->post($url);
+            }
+        }catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            $response = $e->getResponse();
         }
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->server.$uriMetodo);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array());
-        $body = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        $this->return_http_code = $http_code;
-        $this->return_body = $body;
-
-        $this->tratarRetorno();
+        $this->tratarRetorno($response);
     }
 
-    public function sendDELETE($uriMetodo){
-        $uriMetodo = $uriMetodo."&token=".$this->token;
+    public function sendGET($uri, $parametros = null){
+        $url = $this->mountUrl($uri, $parametros);
+        $client = new \GuzzleHttp\Client();
+        $response = null;
 
-        if (strpos($uriMetodo, '?') === false) {
-            $uriMetodo = str_replace("&token","?token",$uriMetodo);
+        try{
+            $response = $client->get($url);
+        }catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            $response = $e->getResponse();
         }
 
-        $client = new GuzzleHttp\Client(['debug' => true,]);
-
-// this option will also set the 'Content-Type' header.
-        $response = $client->delete($uri, [
-            'json' => $data,
-        ]);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->server.$uriMetodo);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        $body = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        echo $http_code;
-        dd($body);
-
-        $this->return_http_code = $http_code;
-        $this->return_body = $body;
-
-        $this->tratarRetorno();
+        $this->tratarRetorno($response);
     }
 
-    protected function tratarRetorno(){
-        $return = json_decode($this->return_body);
+    public function sendDELETE($uri, $parametros = null){
+        $url = $this->mountUrl($uri, $parametros);
+        $client = new \GuzzleHttp\Client();
+        $response = null;
+
+        try{
+            $response = $client->delete($url);
+        }catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            $response = $e->getResponse();
+        }
+
+        $this->tratarRetorno($response);
+    }
+
+    protected function tratarRetorno($response){
+        $this->return_http_code = $response->getStatusCode();
+        $this->return_body = $response->getBody()->getContents();
+
+        if ($this->formatoComunicacao == self::FORMATO_RETORNO_JSON){
+            $return = json_decode($this->return_body);
+        }else{
+            $return = Yaml::parse($this->return_body);
+        }
+
+        $return = ConvertObjectArrayHelper::arrayToObject($return);
 
         if (isset($return->erros)){
             $this->erros = $return->erros;
