@@ -18,11 +18,14 @@ class NfseIntegrationService extends FocusNfeService
 
     public function enviar($nota)
     {
+//        dd(Yaml::dump($nota));
+
         $this->sendPOST("nfse?ref=".$nota['referencia'], Yaml::dump($nota));
     }
 
     protected function tratarRetorno(){
         $return = (object) Yaml::parse($this->return_body);
+        $return = json_decode(json_encode($return));
 
         if (isset($return->erros)){
             $this->erros = $return->erros;
@@ -35,7 +38,7 @@ class NfseIntegrationService extends FocusNfeService
 
     public function consultar($referencia)
     {
-        $this->sendGET("consultar.json?ref=".$referencia);
+        $this->sendGET("nfse/".$referencia);
     }
 
     public function cancelar($referencia, $justificativa){

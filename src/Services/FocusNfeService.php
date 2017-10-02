@@ -66,8 +66,14 @@ abstract class FocusNfeService
     }
 
     public function sendGET($uriMetodo){
+        $uriMetodo = $uriMetodo."&token=".$this->token;
+
+        if (strpos($uriMetodo, '?') === false) {
+            $uriMetodo = str_replace("&token","?token",$uriMetodo);
+        }
+
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->server.$uriMetodo."&token=".$this->token);
+        curl_setopt($ch, CURLOPT_URL, $this->server.$uriMetodo);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array());
         $body = curl_exec($ch);
