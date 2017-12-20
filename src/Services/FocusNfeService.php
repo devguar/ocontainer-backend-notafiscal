@@ -74,6 +74,11 @@ abstract class FocusNfeService
                     $data = Yaml::dump($data);
                     $response = $client->post($url,['body'=>$data]);
                 }else{
+//                    echo (json_encode($data));
+//                    die();
+
+//                    dd($url);
+
                     $response = $client->post($url,['json'=>$data]);
                 }
             }else{

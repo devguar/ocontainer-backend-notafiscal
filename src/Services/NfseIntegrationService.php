@@ -11,7 +11,7 @@ class NfseIntegrationService extends FocusNfeService
 {
     public function __construct($ambiente, $token)
     {
-        parent::__construct($ambiente, $token, parent::FORMATO_RETORNO_YAML);
+        parent::__construct($ambiente, $token, parent::FORMATO_RETORNO_JSON);
     }
 
     protected function urlServerHomologacao()
@@ -27,7 +27,7 @@ class NfseIntegrationService extends FocusNfeService
     public function enviar($nota)
     {
         $this->preValidacao($nota);
-        $this->sendPOST("nfse", ['ref'=>$nota->referencia], ConvertObjectArrayHelper::objectToArray($nota));
+        $this->sendPOST("nfse.json", ['ref'=>$nota->referencia], ConvertObjectArrayHelper::objectToArray($nota));
     }
 
     public function validar($nota){
@@ -36,11 +36,11 @@ class NfseIntegrationService extends FocusNfeService
 
     public function consultar($referencia)
     {
-        $this->sendGET("nfse/".$referencia);
+        $this->sendGET("nfse/".$referencia.".json");
     }
 
     public function cancelar($referencia, $justificativa){
-        $this->sendDELETE("nfse/".$referencia, ['justificativa'=>$justificativa]);
+        $this->sendDELETE("nfse/".$referencia.".json", ['justificativa'=>$justificativa]);
     }
 
     private function preValidacao($nfe){
