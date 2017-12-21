@@ -20,6 +20,7 @@ abstract class FocusNfeService
     const STATUS_AGUARDANDO_AUTORIZACAO = 'processando_autorizacao';
     const STATUS_ERRO_AUTORIZACAO = 'erro_autorizacao';
     const STATUS_AUTORIZADO = 'autorizado';
+    const STATUS_CANCELADO = 'cancelado';
 
     const FORMATO_RETORNO_JSON = "json";
     const FORMATO_RETORNO_YAML = "yaml";
