@@ -134,8 +134,6 @@ class NfeIntegrationService extends FocusNfeService
     {
         parent::tratarRetorno($response);
 
-        dd($this->retorno);
-
         if ($this->retorno){
             if ($this->retorno->caminho_xml_nota_fiscal){
                 $this->retorno->caminho_xml_nota_fiscal = $this->server.$this->retorno->caminho_xml_nota_fiscal;
