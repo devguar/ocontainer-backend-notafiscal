@@ -29,7 +29,7 @@ abstract class FocusNfeService
     private $formatoComunicacao;
     private $token;
 
-    private $server = "";
+    public $server = "";
 
     public $return_http_code;
     public $return_body;

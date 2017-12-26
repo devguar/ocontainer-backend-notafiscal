@@ -111,4 +111,13 @@ class NfseIntegrationService extends FocusNfeService
             throw new InvalidNfeParameter("UF do tomador inexistente.");
         }
     }
+
+    protected function tratarRetorno($response)
+    {
+        parent::tratarRetorno($response);
+
+        if ($this->retorno->caminho_xml_nota_fiscal){
+            $this->retorno->caminho_xml_nota_fiscal = $this->server.$this->retorno->caminho_xml_nota_fiscal;
+        }
+    }
 }

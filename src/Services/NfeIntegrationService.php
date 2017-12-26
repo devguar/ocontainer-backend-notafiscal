@@ -14,18 +14,20 @@ class NfeIntegrationService extends FocusNfeService
 
     protected function urlServerHomologacao()
     {
-        return "http://homologacao.acrasnfe.acras.com.br/nfe2/";
+        return "http://homologacao.acrasnfe.acras.com.br";
     }
 
     protected function urlServerProducao()
     {
-        return "https://api.focusnfe.com.br/nfe2/";
+        return "https://api.focusnfe.com.br";
     }
 
     public function enviar($nota)
     {
         $this->preValidacao($nota);
-        $this->sendPOST("autorizar.json",['ref'=>$nota->referencia], $nota);
+        $ref = $nota->referencia;
+        unset($nota->referencia);
+        $this->sendPOST("/nfe2/autorizar.json",['ref'=>$ref], $nota);
     }
 
     public function validar($nota){
@@ -34,11 +36,11 @@ class NfeIntegrationService extends FocusNfeService
 
     public function consultar($referencia)
     {
-        $this->sendGET("consultar.json",['ref'=>$referencia]);
+        $this->sendGET("/nfe2/consultar.json",['ref'=>$referencia]);
     }
 
     public function cancelar($referencia, $justificativa){
-        $this->sendPOST("cancelar",['ref'=>$referencia,'justificativa'=>$justificativa]);
+        $this->sendPOST("/nfe2/cancelar",['ref'=>$referencia,'justificativa'=>$justificativa]);
     }
 
     private function preValidacao($nfe){
@@ -125,6 +127,19 @@ class NfeIntegrationService extends FocusNfeService
             if (!$item->codigo_ncm){
                 throw new InvalidNfeParameter("Produto número ".$item->numero_item." sem NCM.");
             }
+        }
+    }
+
+    protected function tratarRetorno($response)
+    {
+        parent::tratarRetorno($response);
+
+        if ($this->retorno->caminho_xml_nota_fiscal){
+            $this->retorno->caminho_xml_nota_fiscal = $this->server.$this->retorno->caminho_xml_nota_fiscal;
+        }
+
+        if ($this->retorno->caminho_danfe){
+            $this->retorno->caminho_danfe = $this->server.$this->retorno->caminho_danfe;
         }
     }
 }
