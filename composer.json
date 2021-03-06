@@ -1,11 +1,11 @@
 {
-    "name": "devguar/package-ocontainer-backend-notafiscal",
+    "name": "devguar/ocontainer-backend-notafiscal",
     "description": "Pacote backend notafiscal OContainer",
     "keywords": [
         "devguar",
         "package-ocontainer-backend-notafiscal"
     ],
-    "homepage": "https://bitbucket.org/devguar/package-ocontainer-backend-notafiscal",
+    "homepage": "https://github.com/devguar/ocontainer-backend-notafiscal",
     "license": "MIT",
     "authors": [
         {
@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "php" : ">=5.5.0",
+        "php" : ">=7.0",
         "symfony/yaml": "^3.3",
         "guzzlehttp/guzzle": "^6.3"
     },
